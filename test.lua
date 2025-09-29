@@ -3,11 +3,13 @@ local running = true
 
 -- Hàm dừng toàn bộ
 local function StopAll()
-    running = false
-    print("⚠️ Server chỉ có 1 người -> Dừng tất cả function")
+    if running then
+        running = false
+        print("⚠️ Server chỉ có 1 người -> Dừng tất cả function")
+    end
 end
 
--- Hàm kiểm tra ngay khi bật script
+-- Kiểm tra ngay khi bật script
 local function InitialCheck()
     local count = #Players:GetPlayers()
     if count <= 1 then
@@ -18,21 +20,31 @@ local function InitialCheck()
     end
 end
 
--- Ví dụ function test
-local function MyFunction()
+-- Ví dụ function 1
+local function Func1()
     while running do
-        print("Function đang chạy...")
+        print("Func1 đang chạy...")
         task.wait(1)
     end
-    print("⏹ Function đã dừng")
+    print("Func1 đã dừng")
 end
 
--- Chạy kiểm tra ngay khi bật script
+-- Ví dụ function 2
+local function Func2()
+    while running do
+        print("Func2 đang chạy...")
+        task.wait(2)
+    end
+    print("Func2 đã dừng")
+end
+
+-- Chạy kiểm tra ngay khi bật
 InitialCheck()
 
--- Nếu vẫn đang được phép chạy thì spawn function
+-- Nếu được phép thì spawn function
 if running then
-    task.spawn(MyFunction)
+    task.spawn(Func1)
+    task.spawn(Func2)
 end
 
 -- Theo dõi khi có người rời
