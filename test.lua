@@ -1,65 +1,46 @@
--- Lấy service Players
 local Players = game:GetService("Players")
-
--- Biến điều khiển
 local running = true
 
--- Hàm dừng tất cả function bạn tự định nghĩa
-local function StopAllFunctions()
+-- Hàm dừng toàn bộ
+local function StopAll()
     running = false
-    print("⚠️ Chỉ còn 1 người trong server -> Dừng tất cả function")
+    print("⚠️ Server chỉ có 1 người -> Dừng tất cả function")
 end
 
--- Ví dụ function bạn thêm
+-- Hàm kiểm tra ngay khi bật script
+local function InitialCheck()
+    local count = #Players:GetPlayers()
+    if count <= 1 then
+        StopAll()
+    else
+        running = true
+        print("✅ Có nhiều người -> Cho phép chạy function")
+    end
+end
+
+-- Ví dụ function test
 local function MyFunction()
     while running do
         print("Function đang chạy...")
-        task.wait(2)
+        task.wait(1)
     end
+    print("⏹ Function đã dừng")
 end
 
--- Function GenerateReservedServerCode loop
-local function ReservedServerLoop()
-    while running do
-        local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
-        game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
-        print("Function GenerateReservedServerCode chạy")
-        task.wait(5) -- thời gian lặp (bạn chỉnh lại theo ý muốn)
-    end
+-- Chạy kiểm tra ngay khi bật script
+InitialCheck()
+
+-- Nếu vẫn đang được phép chạy thì spawn function
+if running then
+    task.spawn(MyFunction)
 end
 
--- Khởi động function khi có nhiều người
-local function StartAll()
-    if running then
-        task.spawn(MyFunction)
-        task.spawn(ReservedServerLoop)
-    end
-end
-
--- Kiểm tra khi số người thay đổi
-Players.PlayerAdded:Connect(function()
-    local count = #Players:GetPlayers()
-    if count > 1 then
-        running = true
-        print("✅ Có nhiều người trong server -> Function tiếp tục chạy")
-        StartAll()
-    end
-end)
-
+-- Theo dõi khi có người rời
 Players.PlayerRemoving:Connect(function()
-    local count = #Players:GetPlayers()
-    if count <= 1 then
-        StopAllFunctions()
+    if #Players:GetPlayers() - 1 <= 1 then
+        StopAll()
     end
 end)
-
--- Kiểm tra ban đầu khi script load
-if #Players:GetPlayers() > 1 then
-    StartAll()
-else
-    StopAllFunctions()
-end
-
 
 ------------------------------------------------------------------
 -- Function bạn muốn add thêm (không chỉnh sửa)
