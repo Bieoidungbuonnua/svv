@@ -1,75 +1,3 @@
-local Players = game:GetService("Players")
-local running = false  -- trạng thái chạy
-
--- =========================
--- Các function bạn muốn add
--- =========================
-local function Func1()
-    while running do
-        print("Func1 đang chạy...")
-        task.wait(1)
-    end
-    print("Func1 đã dừng")
-end
-
-local function Func2()
-    while running do
-        print("Func2 đang chạy...")
-        task.wait(2)
-    end
-    print("Func2 đã dừng")
-end
-
--- =========================
--- Controller
--- =========================
-local function StopAll()
-    if running then
-        running = false
-        print("⚠️ Server chỉ có 1 người -> Dừng tất cả function")
-    end
-end
-
-local function StartAll()
-    if not running then
-        running = true
-        print("✅ Có nhiều người -> Bắt đầu chạy function")
-        task.spawn(Func1)
-        task.spawn(Func2)
-    end
-end
-
--- =========================
--- Lần kiểm tra đầu (sau 5s)
--- =========================
-task.delay(5, function()
-    if #Players:GetPlayers() <= 1 then
-        StopAll()
-    else
-        StartAll()
-    end
-end)
-
--- =========================
--- Auto theo dõi người ra/vào
--- =========================
-Players.PlayerRemoving:Connect(function()
-    task.wait(0.1)
-    if #Players:GetPlayers() <= 1 then
-        StopAll()
-    end
-end)
-
-Players.PlayerAdded:Connect(function()
-    if #Players:GetPlayers() > 1 then
-        StartAll()
-    end
-end)
-
-------------------------------------------------------------------
--- Function bạn muốn add thêm (không chỉnh sửa)
-------------------------------------------------------------------
-
 local md5 = {}
 local hmac = {}
 local base64 = {}
@@ -311,7 +239,7 @@ local function GenerateReservedServerCode(placeId)
 
 	local content = firstBytes .. placeIdBytes
 
-	local SUPERDUPERSECRETROBLOXKEYTHATTHEYDIDNTCHANGEEVERSINCEFOREVER = "e4Yn8ckbCJtw2sv7qmbg" -- legacy leaked key from ages ago that still works due to roblox being roblox.
+	local SUPERDUPERSECRETROBLOXKEYTHATTHEYDIDNTCHANGEEVERSINCEFOREVER = "e4Yn8ckbCJtw2sv7qmbg"
 	local signature = hmac.new(SUPERDUPERSECRETROBLOXKEYTHATTHEYDIDNTCHANGEEVERSINCEFOREVER, content, md5.sum)
 
 	local accessCodeBytes = signature .. content
@@ -330,5 +258,16 @@ local function GenerateReservedServerCode(placeId)
 	return accessCode, gameCode
 end
 
-local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
-game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
+-- ✅ Chỉ thêm phần này
+local function CanRunFunc()
+	return #game.Players:GetPlayers() > 1
+end
+
+task.delay(5, function()
+	if CanRunFunc() then
+		local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
+		game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
+	else
+		warn("Không chạy vì server chỉ có 1 người")
+	end
+end)
