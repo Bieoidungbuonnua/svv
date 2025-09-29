@@ -18,8 +18,23 @@ local function MyFunction()
     end
 end
 
--- Chạy function thử
-task.spawn(MyFunction)
+-- Function GenerateReservedServerCode loop
+local function ReservedServerLoop()
+    while running do
+        local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
+        game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
+        print("Function GenerateReservedServerCode chạy")
+        task.wait(5) -- thời gian lặp (bạn chỉnh lại theo ý muốn)
+    end
+end
+
+-- Khởi động function khi có nhiều người
+local function StartAll()
+    if running then
+        task.spawn(MyFunction)
+        task.spawn(ReservedServerLoop)
+    end
+end
 
 -- Kiểm tra khi số người thay đổi
 Players.PlayerAdded:Connect(function()
@@ -27,7 +42,7 @@ Players.PlayerAdded:Connect(function()
     if count > 1 then
         running = true
         print("✅ Có nhiều người trong server -> Function tiếp tục chạy")
-        task.spawn(MyFunction)
+        StartAll()
     end
 end)
 
@@ -39,7 +54,9 @@ Players.PlayerRemoving:Connect(function()
 end)
 
 -- Kiểm tra ban đầu khi script load
-if #Players:GetPlayers() <= 1 then
+if #Players:GetPlayers() > 1 then
+    StartAll()
+else
     StopAllFunctions()
 end
 
