@@ -1,5 +1,5 @@
 local Players = game:GetService("Players")
-local running = false  -- mặc định không chạy cho tới khi kiểm tra xong
+local running = false  -- trạng thái chạy
 
 -- Hàm dừng toàn bộ
 local function StopAll()
@@ -36,16 +36,18 @@ function Func2()
     print("Func2 đã dừng")
 end
 
--- Kiểm tra ngay khi bật
-if #Players:GetPlayers() <= 1 then
-    StopAll()
-else
-    StartAll()
-end
+-- Chờ 5 giây mới kiểm tra lần đầu
+task.delay(5, function()
+    if #Players:GetPlayers() <= 1 then
+        StopAll()
+    else
+        StartAll()
+    end
+end)
 
 -- Khi có người rời
 Players.PlayerRemoving:Connect(function()
-    task.wait(0.1) -- đợi update list
+    task.wait(0.1) -- chờ update
     if #Players:GetPlayers() <= 1 then
         StopAll()
     end
