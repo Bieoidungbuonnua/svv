@@ -258,18 +258,16 @@ local function GenerateReservedServerCode(placeId)
 	return accessCode, gameCode
 end
 
--- ✅ Hàm kiểm tra server
+-- ✅ Chỉ thêm phần này
 local function CanRunFunc()
 	return #game.Players:GetPlayers() > 1
 end
 
--- ✅ Sau 5s mới quyết định có chạy func hay không
 task.delay(5, function()
 	if CanRunFunc() then
 		local accessCode, _ = GenerateReservedServerCode(game.PlaceId)
 		game.RobloxReplicatedStorage.ContactListIrisInviteTeleport:FireServer(game.PlaceId, "", accessCode)
-		warn("Đã chạy FireServer (server có nhiều người).")
 	else
-		warn("Không chạy vì server chỉ có 1 người.")
+		warn("Không chạy vì server chỉ có 1 người")
 	end
 end)
