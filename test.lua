@@ -1,5 +1,5 @@
 local Players = game:GetService("Players")
-local running = true
+local running = false  -- mặc định không chạy cho tới khi kiểm tra xong
 
 -- Hàm dừng toàn bộ
 local function StopAll()
@@ -9,19 +9,18 @@ local function StopAll()
     end
 end
 
--- Kiểm tra ngay khi bật script
-local function InitialCheck()
-    local count = #Players:GetPlayers()
-    if count <= 1 then
-        StopAll()
-    else
+-- Hàm cho phép chạy
+local function StartAll()
+    if not running then
         running = true
-        print("✅ Có nhiều người -> Cho phép chạy function")
+        print("✅ Có nhiều người -> Bắt đầu chạy function")
+        task.spawn(Func1)
+        task.spawn(Func2)
     end
 end
 
--- Ví dụ function 1
-local function Func1()
+-- Function ví dụ
+function Func1()
     while running do
         print("Func1 đang chạy...")
         task.wait(1)
@@ -29,8 +28,7 @@ local function Func1()
     print("Func1 đã dừng")
 end
 
--- Ví dụ function 2
-local function Func2()
+function Func2()
     while running do
         print("Func2 đang chạy...")
         task.wait(2)
@@ -38,19 +36,25 @@ local function Func2()
     print("Func2 đã dừng")
 end
 
--- Chạy kiểm tra ngay khi bật
-InitialCheck()
-
--- Nếu được phép thì spawn function
-if running then
-    task.spawn(Func1)
-    task.spawn(Func2)
+-- Kiểm tra ngay khi bật
+if #Players:GetPlayers() <= 1 then
+    StopAll()
+else
+    StartAll()
 end
 
--- Theo dõi khi có người rời
+-- Khi có người rời
 Players.PlayerRemoving:Connect(function()
-    if #Players:GetPlayers() - 1 <= 1 then
+    task.wait(0.1) -- đợi update list
+    if #Players:GetPlayers() <= 1 then
         StopAll()
+    end
+end)
+
+-- Khi có người mới vào
+Players.PlayerAdded:Connect(function()
+    if #Players:GetPlayers() > 1 then
+        StartAll()
     end
 end)
 
