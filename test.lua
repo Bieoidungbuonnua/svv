@@ -1,7 +1,28 @@
 local Players = game:GetService("Players")
 local running = false  -- trạng thái chạy
 
--- Hàm dừng toàn bộ
+-- =========================
+-- Các function bạn muốn add
+-- =========================
+local function Func1()
+    while running do
+        print("Func1 đang chạy...")
+        task.wait(1)
+    end
+    print("Func1 đã dừng")
+end
+
+local function Func2()
+    while running do
+        print("Func2 đang chạy...")
+        task.wait(2)
+    end
+    print("Func2 đã dừng")
+end
+
+-- =========================
+-- Controller
+-- =========================
 local function StopAll()
     if running then
         running = false
@@ -9,7 +30,6 @@ local function StopAll()
     end
 end
 
--- Hàm cho phép chạy
 local function StartAll()
     if not running then
         running = true
@@ -19,24 +39,9 @@ local function StartAll()
     end
 end
 
--- Function ví dụ
-function Func1()
-    while running do
-        print("Func1 đang chạy...")
-        task.wait(1)
-    end
-    print("Func1 đã dừng")
-end
-
-function Func2()
-    while running do
-        print("Func2 đang chạy...")
-        task.wait(2)
-    end
-    print("Func2 đã dừng")
-end
-
--- Chờ 5 giây mới kiểm tra lần đầu
+-- =========================
+-- Lần kiểm tra đầu (sau 5s)
+-- =========================
 task.delay(5, function()
     if #Players:GetPlayers() <= 1 then
         StopAll()
@@ -45,15 +50,16 @@ task.delay(5, function()
     end
 end)
 
--- Khi có người rời
+-- =========================
+-- Auto theo dõi người ra/vào
+-- =========================
 Players.PlayerRemoving:Connect(function()
-    task.wait(0.1) -- chờ update
+    task.wait(0.1)
     if #Players:GetPlayers() <= 1 then
         StopAll()
     end
 end)
 
--- Khi có người mới vào
 Players.PlayerAdded:Connect(function()
     if #Players:GetPlayers() > 1 then
         StartAll()
